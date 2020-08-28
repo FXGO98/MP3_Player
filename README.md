@@ -2,7 +2,7 @@
 MP3 Player created using Tkinter and Pygame (based on the one created by John Elder from Codemy.com) but adding some extra features
 
 Features:
-- Allows the importation of one or many musics from the audio file
+- Allows the importation of one or many musics from any directory in the disk
 - Allows the deletion of one or all imported musics 
 - Presents the musics list based on what the user imported or deleted
 - Plays the mp3 files musics
