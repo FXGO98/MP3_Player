@@ -1,6 +1,7 @@
 from tkinter import *
 import pygame
 from tkinter import filedialog
+from tkinter import messagebox
 import time
 from mutagen.mp3 import MP3
 import tkinter.ttk as ttk
@@ -99,6 +100,47 @@ def play_time():
     status_bar.after(1000, play_time)
 
 
+
+# Function To Register New Playlist on Database
+def register_new_playlist():
+
+    # Get Playlist Name
+    playlist_name = new_playlist_name.get()
+    
+    # Check for Repeated Playlists and register new unique names
+    check_repeated = playlists_record.register_playlist(playlist_name)
+
+    # If Playlist already exists, shows error
+    if check_repeated == -1:
+        response = messagebox.showerror("Repeated Playlist!", "Playlist with that Name Already Exists! Please choose a different Name.")
+
+    # Otherwise closes Window
+    else:
+        new_playlist_window.destroy()
+
+
+
+# Function to Create New Playlist
+def new_playlist():
+
+    # New Window to Write New Playlist Name
+    global new_playlist_window
+    new_playlist_window = Toplevel()
+    new_playlist_window.title('New Playlist')
+    new_playlist_window.iconbitmap(r"images\Wwalczyszyn-Android-Style-Honeycomb-Music.ico")
+    
+    new_playlist_label = Label(new_playlist_window, text = "New Playlist Name:")
+    new_playlist_label.pack()
+
+    # Entry to Write Playlist Name On
+    global new_playlist_name
+    new_playlist_name = Entry(new_playlist_window, width=50)
+    new_playlist_name.pack()
+    
+
+    # Button to Save Playlist
+    save_playlist_btn = Button(new_playlist_window, text="Save", command=register_new_playlist)
+    save_playlist_btn.pack()
 
 # Add Song Function
 def add_song():
@@ -410,20 +452,25 @@ stop_btn.grid(row=0, column=3, pady=(20,0))
 my_menu = Menu(root)
 root.config(menu=my_menu)
 
+# Create Playlist Menu
+playlist_menu = Menu(my_menu)
+my_menu.add_cascade(label = "Playlist", menu=playlist_menu)
+playlist_menu.add_command(label="New Playlist", command=new_playlist)
+
 # Add Song Menu
 add_song_menu = Menu(my_menu)
 my_menu.add_cascade(label = "Add Songs", menu=add_song_menu)
-add_song_menu.add_command(label="Add One Song To Playlist", command=add_song)
+add_song_menu.add_command(label="Add One Song To Menu", command=add_song)
 
 # Add Many Songs to Playlist
-add_song_menu.add_command(label="Add Many Songs To Playlist", command=add_many_songs)
+add_song_menu.add_command(label="Add Many Songs To Menu", command=add_many_songs)
 
 
 # Create Delete Song Menu
 remove_song_menu = Menu(my_menu)
 my_menu.add_cascade(label="Remove Songs", menu = remove_song_menu)
-remove_song_menu.add_command(label="Delete A Song From Playlist", command = delete_song)
-remove_song_menu.add_command(label="Delete All Songs From Playlist", command = delete_all_songs)
+remove_song_menu.add_command(label="Delete A Song From Menu", command = delete_song)
+remove_song_menu.add_command(label="Delete All Songs From Menu", command = delete_all_songs)
 
 
 # Create Status Bar

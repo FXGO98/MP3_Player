@@ -26,7 +26,17 @@ class Database:
             self.conn.commit()
 
 
+
+    # Register New Playlist on the Database
     def register_playlist(self, pl_name):
+
+        self.cur.execute("SELECT * FROM Playlists WHERE P_Name = :p_name", {'p_name': pl_name})
+
+        repeated_playlists = self.cur.fetchall()
+
+        if len(repeated_playlists) > 0:
+            return -1
+
         self.cur.execute("SELECT * FROM Playlists")
         
         playlists = self.cur.fetchall()
@@ -44,3 +54,5 @@ class Database:
 
         self.cur.execute("""INSERT INTO Playlists (P_Id, P_Name, N_Musics, data_test) VALUES (:id , :name, :n_musics, :time)""", {'id': num_playlists, 'name': pl_name, 'n_musics': num_musics, 'time': time_now})
         self.conn.commit()
+        
+        return 0
