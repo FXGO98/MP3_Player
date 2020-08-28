@@ -5,6 +5,7 @@ import time
 from mutagen.mp3 import MP3
 import tkinter.ttk as ttk
 from PIL import ImageTk,Image
+import database
 
 root = Tk()
 root.title("MP3 Player")
@@ -20,6 +21,8 @@ pygame.mixer.init()
 # List of Paths of every .mp3 file imported
 song_dir_list = []
 
+
+playlists_record = database.Database()
 
 
 # Grab Song Lenght Time Info
