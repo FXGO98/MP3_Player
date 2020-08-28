@@ -17,6 +17,11 @@ root.config(bg="grey")
 pygame.mixer.init()
 
 
+# List of Paths of every .mp3 file imported
+song_dir_list = []
+
+
+
 # Grab Song Lenght Time Info
 def play_time():
     # Check for double timing
@@ -34,7 +39,11 @@ def play_time():
     # Get Currently Playing Song
     current_song = song_box.get(ACTIVE)
 
-    current_song = f'C:/Users/franc/Desktop/FEUP/GUI Python/audio/{current_song}.mp3'
+
+    # Getting song index in order to choose the right path for it in the Path List
+    song_index = song_box.index(ACTIVE)
+
+    current_song = f'{song_dir_list[song_index]}{current_song}.mp3'
 
     # Get Song Lenght with Mutagen
     song_mut = MP3(current_song)    
@@ -92,12 +101,36 @@ def play_time():
 def add_song():
     song = filedialog.askopenfilename(initialdir="audio/", title="Choose A Song", filetypes=(("mp3 Files", "*.mp3"), ("wav Files", "*.wav")))
 
+
+    # Getting the path of the .mp3 file
+    song_dir = song.split("/")
+
+    song_dir_len = len(song_dir)
+
+    song_dir.pop(song_dir_len-1)
+
+    song_file = song_dir[0]
+
+    song_dir.pop(0)
+
+    for elem in song_dir:
+        song_file = song_file + "/" + elem
+
+    song_file = song_file + "/"
+
+
+    # Saving path of the .mp3 file in the path List
+    song_dir_list.append(song_file)
+
+
     # Strip out the directory info and .mp3 extension from the song name
-    song = song.replace("C:/Users/franc/Desktop/MP3 Player/audio", "")
+    song = song.replace(song_file, "")
     song = song.replace(".mp3", "")
 
     # Add song to list box
     song_box.insert(END, song)
+
+
 
 # Add many songs to playlist
 def add_many_songs():
@@ -106,12 +139,35 @@ def add_many_songs():
     # Strip out the directory info and .mp3 extension from the song name
     for song in songs:
         
+        # Getting the path of the .mp3 file
+        song_dir = song.split("/")
+
+        song_dir_len = len(song_dir)
+
+        song_dir.pop(song_dir_len-1)
+
+        song_file = song_dir[0]
+
+        song_dir.pop(0)
+
+        for elem in song_dir:
+            song_file = song_file + "/" + elem
+
+        song_file = song_file + "/"
+
+
+        # Saving path of the .mp3 file in the path List
+        song_dir_list.append(song_file)
+
+
         # Strip out the directory info and .mp3 extension from the song name
-        song = song.replace("C:/Users/franc/Desktop/MP3 Player/audio", "")
+        song = song.replace(song_file, "")
         song = song.replace(".mp3", "")
 
         # Add song to list box
         song_box.insert(END, song)
+
+
 
 # Play Selected Song
 def play():
@@ -124,7 +180,11 @@ def play():
     my_slider.config(value=0)
     
     song = song_box.get(ACTIVE)
-    song = f'C:/Users/franc/Desktop/MP3 Player/audio/{song}.mp3'
+
+    # Getting song index in order to choose the right path for it in the Path List
+    song_index = song_box.index(ACTIVE)
+
+    song = f'{song_dir_list[song_index]}{song}.mp3'
         
 
     pygame.mixer.music.load(song)
@@ -133,10 +193,6 @@ def play():
     # Call the play_time function to get the song lenght
     play_time()
 
-
-    # Update Slider to Position
-    #slider_position = int(song_length)
-    #my_slider.config(to=slider_position, value = 0)
 
 
 # Stop Playing Current Song
@@ -157,6 +213,8 @@ def stop():
     global stopped
     stopped = True
 
+
+
 # Play The Next Song in the Playlist
 def forward():
     # Reset Slider and Status Bar
@@ -176,7 +234,7 @@ def forward():
 
     song = song_box.get(next_song)
 
-    song = f'C:/Users/franc/Desktop/MP3 Player/audio/{song}.mp3'
+    song = f'{song_dir_list[next_song]}{song}.mp3'
 
     pygame.mixer.music.load(song)
     pygame.mixer.music.play(loops=0)
@@ -189,6 +247,8 @@ def forward():
 
     # Set Active Bar to Next Song
     song_box.selection_set(next_song, last=None)
+
+
 
 def back():
     # Reset Slider and Status Bar
@@ -208,7 +268,7 @@ def back():
 
     song = song_box.get(previous_song)
 
-    song = f'C:/Users/franc/Desktop/MP3 Player/audio/{song}.mp3'
+    song = f'{song_dir_list[previous_song]}{song}.mp3'
 
     pygame.mixer.music.load(song)
     pygame.mixer.music.play(loops=0)
@@ -223,13 +283,24 @@ def back():
     song_box.selection_set(previous_song, last=None)
 
 
+
 # Delete a Song
 def delete_song():
     stop()
+    
+
+    # Getting song index in order to choose the right path for it in the Path List
+    song_idx = song_box.index(ANCHOR)
+
     song_box.delete(ANCHOR)
+
+
+    # Delete Song path from the Path List
+    song_dir_list.pop(song_idx)
 
     # Stop Music If it's playing
     pygame.mixer.music.stop()
+
     
 
 # Delete All Songs from Playlist
@@ -237,8 +308,13 @@ def delete_all_songs():
     stop()
     song_box.delete(0, END)
 
+    # Delete Songs paths from the Path List
+    for i in range(len(song_dir_list)):
+        song_dir_list.pop(0)
+
     # Stop Music If it's playing
     pygame.mixer.music.stop()
+
 
 
 # Create Global Pause Variable
@@ -260,15 +336,20 @@ def pause(paused_1):
         paused = True
 
 
+
 # Create Slider Function
 def slide(x):
     #slider_label.config(text=f'{int(my_slider.get())} of {int(song_length)}')
     song = song_box.get(ACTIVE)
-    song = f'C:/Users/franc/Desktop/MP3 Player/audio/{song}.mp3'
+
+    song_index = song_box.index(ACTIVE)
+
+    song = f'{song_dir_list[song_index]}{song}.mp3'
 
     # Get Current Volume
     pygame.mixer.music.load(song)
     pygame.mixer.music.play(loops=0, start=int(my_slider.get()))
+
 
 
 # Create Volume Function
@@ -276,6 +357,8 @@ def volume(x):
     pygame.mixer.music.set_volume(1-volume_slider.get())
     current_volume = pygame.mixer.music.get_volume()
     slider_label.config(text=int((current_volume)*100))
+
+    
 
 # Create Master Frame
 master_frame = Frame(root, bg="grey")
