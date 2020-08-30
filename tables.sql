@@ -2,20 +2,16 @@
 drop table if exists Playlists;
 CREATE TABLE Playlists
 (
-    P_Id integer primary key,
     P_Name text not null,
-    N_Musics integer,
-    data_test timestamp
+    N_Musics integer
 );
 
 drop table if exists Musics;
 CREATE TABLE Musics
 (
-    M_Id integer primary key,
     M_Name text not null,
     M_Path text not null,
-    P_Id integer,
-    P_Name timestamp,
+    P_Name text,
     Position_in_P integer
 );
 

@@ -9,7 +9,7 @@ class Database:
 
         file_ = ''
         files = [f for f in os.listdir() if f.endswith('.db')]
-        print(files)
+
         if len(files) == 1:
             file_ = files[0]
             self.reset = False
@@ -37,22 +37,69 @@ class Database:
         if len(repeated_playlists) > 0:
             return -1
 
-        self.cur.execute("SELECT * FROM Playlists")
-        
-        playlists = self.cur.fetchall()
-
-        num_playlists = len(playlists)
-
 
         self.cur.execute("SELECT * FROM Musics WHERE P_Name = :p_name", {'p_name': pl_name})
         
         musics = self.cur.fetchall()
 
         num_musics = len(musics)
-        
-        time_now = datetime.now()
 
-        self.cur.execute("""INSERT INTO Playlists (P_Id, P_Name, N_Musics, data_test) VALUES (:id , :name, :n_musics, :time)""", {'id': num_playlists, 'name': pl_name, 'n_musics': num_musics, 'time': time_now})
+        self.cur.execute("""INSERT INTO Playlists (P_Name, N_Musics) VALUES (:name, :n_musics)""", {'name': pl_name, 'n_musics': num_musics})
         self.conn.commit()
         
         return 0
+
+
+
+    # Get All Playlists on the Database
+    def get_playlists(self):
+
+        self.cur.execute("SELECT * FROM Playlists")
+        
+        playlists = self.cur.fetchall()
+
+        return playlists
+
+
+
+    # Delete Playlist from Database
+    def delete_playlist(self, p_name):
+        
+        self.cur.execute("SELECT * FROM Playlists WHERE P_Name = :name", {'name': p_name})
+        
+        playlists = self.cur.fetchall()
+
+        if len(playlists) == 1:
+            
+            self.cur.execute("DELETE FROM Playlists WHERE P_Name = :name", {'name': p_name})
+            self.conn.commit()
+            return 1
+
+        else:
+            return 0
+
+
+
+    # Identify if is an existing Playlist
+    def playlist_exists(self, p_name):
+
+        self.cur.execute("SELECT * FROM Playlists WHERE P_Name = :name", {'name': p_name})
+        
+        playlists = self.cur.fetchall()
+
+        if len(playlists) == 1:
+            return 1
+
+        else:
+            return 0
+
+
+
+    # Get All Musics belonging to the Playlist
+    def get_musics_from_playlist(self, p_name):
+
+        self.cur.execute("SELECT * FROM Musics WHERE P_Name = :name", {'name': p_name})
+        
+        musics = self.cur.fetchall()
+
+        return musics

@@ -11,7 +11,7 @@ import database
 root = Tk()
 root.title("MP3 Player")
 root.iconbitmap(r"images\Wwalczyszyn-Android-Style-Honeycomb-Music.ico")
-root.geometry("500x370")
+root.geometry("500x400")
 root.config(bg="grey")
 
 
@@ -25,6 +25,38 @@ song_dir_list = []
 
 playlists_record = database.Database()
 
+
+showing_playlists = False
+
+# Function to display Existing Playlists
+def display_playlists():
+
+    global showing_playlists
+    
+    playlists_list = []
+
+    if song_box.size() == 0:
+
+        playlists_list = playlists_record.get_playlists()
+         
+        for elem in playlists_list:
+            song_box.insert(END, elem[0])
+
+        showing_playlists = True
+
+        return_btn.grid_forget()
+
+        info_label.grid(row=0, column=1, sticky=W)
+
+    elif showing_playlists:
+        song_box.insert(END, new_playlist_name.get())
+            
+        return_btn.grid_forget()
+
+        info_label.grid(row=0, column=1, sticky=W)
+
+    else:
+        pass
 
 # Grab Song Lenght Time Info
 def play_time():
@@ -116,7 +148,9 @@ def register_new_playlist():
 
     # Otherwise closes Window
     else:
+        display_playlists()
         new_playlist_window.destroy()
+
 
 
 
@@ -141,6 +175,21 @@ def new_playlist():
     # Button to Save Playlist
     save_playlist_btn = Button(new_playlist_window, text="Save", command=register_new_playlist)
     save_playlist_btn.pack()
+
+
+
+# Function to delete selected Playlist
+def delete_this_playlist():
+
+    selected_playlist = song_box.selection_get()
+
+    playlist_index = song_box.index(ACTIVE)
+
+    check = playlists_record.delete_playlist(selected_playlist)
+
+    if check == 1:
+        song_box.delete(playlist_index)
+
 
 # Add Song Function
 def add_song():
@@ -214,29 +263,64 @@ def add_many_songs():
 
 
 
+# Function to get back to Playlists Menu
+def get_back():
+
+    song_box.delete(0, END)
+    
+    display_playlists()
+
+
+
 # Play Selected Song
 def play():
-    # Set Stopped Variable to False so song can play
-    global stopped
-    stopped = False
-    
-    # Reset Slider and Status Bar
-    status_bar.config(text='')
-    my_slider.config(value=0)
-    
-    song = song_box.get(ACTIVE)
 
-    # Getting song index in order to choose the right path for it in the Path List
-    song_index = song_box.index(ACTIVE)
+    item = song_box.get(ACTIVE)
 
-    song = f'{song_dir_list[song_index]}{song}.mp3'
+    is_playlist = playlists_record.playlist_exists(item)
+
+    if is_playlist == 1:
+
+        song_box.delete(0, END)
+
+        musics_from_playlist = []
+
+        musics_from_playlist = playlists_record.get_musics_from_playlist(item)
+
+        song_dir_list.clear()
+
+        info_label.grid_forget()
+
+        for elem in musics_from_playlist:
+            song_box.insert(END, elem[0])
+            song_dir_list.append(elem[1])
+
+        return_btn.grid(row=0, column=0, sticky=W, pady=(1,2))
+
         
 
-    pygame.mixer.music.load(song)
-    pygame.mixer.music.play(loops=0)
+    else:
+        # Set Stopped Variable to False so song can play
+        global stopped
+        stopped = False
+        
+        # Reset Slider and Status Bar
+        status_bar.config(text='')
+        my_slider.config(value=0)
+        
+        song = song_box.get(ACTIVE)
 
-    # Call the play_time function to get the song lenght
-    play_time()
+        # Getting song index in order to choose the right path for it in the Path List
+        song_index = song_box.index(ACTIVE)
+
+        song = f'{song_dir_list[song_index]}{song}.mp3'
+            
+
+        pygame.mixer.music.load(song)
+        pygame.mixer.music.play(loops=0)
+
+        # Call the play_time function to get the song lenght
+        play_time()
 
 
 
@@ -411,7 +495,7 @@ master_frame.pack(pady=20, padx=(30,0))
 
 # Create Playlist Box
 song_box = Listbox(master_frame, bg = "black", fg="green", width=60, selectbackground="white", selectforeground="black")
-song_box.grid(row=0, column=0)
+song_box.grid(row=1, column=0, columnspan = 2)
 
 
 # Create Player Control Button Images
@@ -420,16 +504,17 @@ forward_btn_img = PhotoImage(file='images/forward.png')
 play_btn_img = PhotoImage(file='images/play.png')
 pause_btn_img = PhotoImage(file='images/pause.png')
 stop_btn_img = PhotoImage(file='images/stop.png')
+return_btn_img = PhotoImage(file='images/back_arrow.png')
 
 
 # Create Player Control Frame
 
 ctrl_frame = Frame(master_frame, bg="grey")
-ctrl_frame.grid(row=1, column=0)
+ctrl_frame.grid(row=2, column=0, columnspan = 2)
 
 # Create Volume Label Frame
 volume_frame = LabelFrame(master_frame, text="Volume", bg="grey")
-volume_frame.grid(row=0, column=1, padx=(20,0))
+volume_frame.grid(row=1, column=2, padx=(20,0))
 
 
 # Create Player Control Buttons
@@ -456,6 +541,7 @@ root.config(menu=my_menu)
 playlist_menu = Menu(my_menu)
 my_menu.add_cascade(label = "Playlist", menu=playlist_menu)
 playlist_menu.add_command(label="New Playlist", command=new_playlist)
+playlist_menu.add_command(label="Delete Playlist", command=delete_this_playlist)
 
 # Add Song Menu
 add_song_menu = Menu(my_menu)
@@ -480,7 +566,7 @@ status_bar.pack(fill=X, side=BOTTOM, ipady=2)
 
 # Create Music Position Slider
 my_slider = ttk.Scale(master_frame, from_=0, to=100, orient=HORIZONTAL, value=0, command=slide, length = 360)
-my_slider.grid(row=2, column=0, pady=(30,10))
+my_slider.grid(row=3, column=0, pady=(30,10), columnspan = 2)
 
 
 # Create Volume Slider
@@ -490,5 +576,16 @@ volume_slider.pack(pady=(10, 4))
 # Create Current Volume Label
 slider_label = Label(volume_frame, text="100", bg="grey")
 slider_label.pack()
+
+
+# Information Label
+info_label = Label(master_frame, text="Playlists:", bg="grey")
+
+
+# Create a return button
+return_btn = Button(master_frame, image=return_btn_img, borderwidth = 0, command=get_back)
+
+
+display_playlists()
 
 root.mainloop()
