@@ -1,5 +1,6 @@
 from tkinter import *
 import pygame
+import os
 from tkinter import filedialog
 from tkinter import messagebox
 import time
@@ -23,10 +24,47 @@ pygame.mixer.init()
 song_dir_list = []
 
 
+# App Database
 playlists_record = database.Database()
 
 
+# Variable to control the Playlists Visibility
 showing_playlists = False
+
+
+# Directory to get musics from
+songs_main_dir = ''
+
+
+# Define of Create Directory to import musics
+def dir_define():
+
+    check_dir_db = []
+
+
+    # Check if there is any directory in the Database
+    check_dir_db = playlists_record.DB_dir()
+   
+
+
+    if len(check_dir_db) == 0:
+
+        check_dir = os.path.isdir("./audio")
+
+        if check_dir == False:
+            os.mkdir("/audio")
+
+        songs_main_dir = 'audio/'
+
+
+    elif len(check_dir_db) == 1:
+
+        check_dir_db_1 = check_dir_db[0]
+
+        songs_main_dir = check_dir_db_1[0]
+        print(check_dir_db_1[0])
+
+
 
 # Function to display Existing Playlists
 def display_playlists():
@@ -193,46 +231,27 @@ def delete_this_playlist():
 
 # Add Song Function
 def add_song():
-    song = filedialog.askopenfilename(initialdir="audio/", title="Choose A Song", filetypes=(("mp3 Files", "*.mp3"), ("wav Files", "*.wav")))
+
+    global showing_playlists
 
 
-    # Getting the path of the .mp3 file
-    song_dir = song.split("/")
-
-    song_dir_len = len(song_dir)
-
-    song_dir.pop(song_dir_len-1)
-
-    song_file = song_dir[0]
-
-    song_dir.pop(0)
-
-    for elem in song_dir:
-        song_file = song_file + "/" + elem
-
-    song_file = song_file + "/"
+    global songs_main_dir
 
 
-    # Saving path of the .mp3 file in the path List
-    song_dir_list.append(song_file)
+    dir_define()
+    #print(songs_main_dir)
 
 
-    # Strip out the directory info and .mp3 extension from the song name
-    song = song.replace(song_file, "")
-    song = song.replace(".mp3", "")
-
-    # Add song to list box
-    song_box.insert(END, song)
+    song = filedialog.askopenfilename(initialdir=songs_main_dir, title="Choose A Song", filetypes=(("mp3 Files", "*.mp3"), ("wav Files", "*.wav")))
 
 
+    # If it's displaying Playlists, it cleans the song box
+    if len(song) > 0:
 
-# Add many songs to playlist
-def add_many_songs():
-    songs = filedialog.askopenfilenames(initialdir="audio/", title="Choose A Song", filetypes=(("mp3 Files", "*.mp3"), ("wav Files", "*.wav")))
-    
-    # Strip out the directory info and .mp3 extension from the song name
-    for song in songs:
-        
+        if showing_playlists:
+            song_box.delete(0, END)
+            showing_playlists = False
+
         # Getting the path of the .mp3 file
         song_dir = song.split("/")
 
@@ -260,6 +279,72 @@ def add_many_songs():
 
         # Add song to list box
         song_box.insert(END, song)
+
+
+        # Update Directory
+        playlists_record.change_dir(song_file)
+
+
+
+# Add many songs to playlist
+def add_many_songs():
+
+    global showing_playlists
+
+
+    global songs_main_dir
+
+
+    dir_define()
+
+
+    song_file = ''
+
+
+    songs = filedialog.askopenfilenames(initialdir=songs_main_dir, title="Choose A Song", filetypes=(("mp3 Files", "*.mp3"), ("wav Files", "*.wav")))
+
+
+    # If it's displaying Playlists, it cleans the song box
+    if len(songs) > 0:
+
+        if showing_playlists:
+            song_box.delete(0, END)
+            showing_playlists = False
+    
+        # Strip out the directory info and .mp3 extension from the song name
+        for song in songs:
+            
+            # Getting the path of the .mp3 file
+            song_dir = song.split("/")
+
+            song_dir_len = len(song_dir)
+
+            song_dir.pop(song_dir_len-1)
+
+            song_file = song_dir[0]
+
+            song_dir.pop(0)
+
+            for elem in song_dir:
+                song_file = song_file + "/" + elem
+
+            song_file = song_file + "/"
+
+
+            # Saving path of the .mp3 file in the path List
+            song_dir_list.append(song_file)
+
+
+            # Strip out the directory info and .mp3 extension from the song name
+            song = song.replace(song_file, "")
+            song = song.replace(".mp3", "")
+
+            # Add song to list box
+            song_box.insert(END, song)
+
+
+        # Update Directory
+        playlists_record.change_dir(song_file)
 
 
 
@@ -430,6 +515,11 @@ def delete_song():
     # Stop Music If it's playing
     pygame.mixer.music.stop()
 
+
+    # If the song box is empty, it shows the Playlists
+    if song_box.size() == 0:
+        display_playlists()
+
     
 
 # Delete All Songs from Playlist
@@ -443,6 +533,11 @@ def delete_all_songs():
 
     # Stop Music If it's playing
     pygame.mixer.music.stop()
+
+
+    # If the song box is empty, it shows the Playlists
+    if song_box.size() == 0:
+        display_playlists()
 
 
 
@@ -582,10 +677,18 @@ slider_label.pack()
 info_label = Label(master_frame, text="Playlists:", bg="grey")
 
 
+
 # Create a return button
 return_btn = Button(master_frame, image=return_btn_img, borderwidth = 0, command=get_back)
 
 
+
+# Define Directory to get song from
+dir_define()
+
+
+# Check if its time to display playlists
 display_playlists()
+
 
 root.mainloop()

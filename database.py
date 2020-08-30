@@ -103,3 +103,36 @@ class Database:
         musics = self.cur.fetchall()
 
         return musics
+
+
+
+    # Check if there is any directory in the database and get it
+    def DB_dir(self):
+
+        self.cur.execute("SELECT * FROM directory")
+
+        dir = self.cur.fetchall()
+
+        return dir
+
+
+
+    # Change Directory to a new one
+    def change_dir(self, new_path):
+
+        self.cur.execute("SELECT * FROM directory")
+
+        dir = self.cur.fetchall()
+
+
+        if len(dir) == 0:
+            
+            self.cur.execute("""INSERT INTO directory (folder_path) VALUES (:path)""", {'path': new_path})
+            self.conn.commit()
+
+
+        elif len(dir) == 1:
+
+            self.cur.execute("UPDATE directory SET folder_path = :path WHERE oid = 1", {'path': new_path})
+            self.conn.commit()
+    
