@@ -72,6 +72,7 @@ class Database:
         if len(playlists) == 1:
             
             self.cur.execute("DELETE FROM Playlists WHERE P_Name = :name", {'name': p_name})
+            self.cur.execute("DELETE FROM Musics WHERE P_Name = :name", {'name': p_name})
             self.conn.commit()
             return 1
 
@@ -135,4 +136,59 @@ class Database:
 
             self.cur.execute("UPDATE directory SET folder_path = :path WHERE oid = 1", {'path': new_path})
             self.conn.commit()
+
+
+    
+    # Add Music to Playlist
+    def add_to_playlist(self, playlist, music, path):
+        
+        self.cur.execute("""INSERT INTO Musics (M_Name, M_Path, P_Name) VALUES 
+            (:m_name, :m_path, :p_name)""", {'m_name': music, 'm_path': path, 'p_name': playlist})
+        
+        self.conn.commit()
+
+
+        self.cur.execute("SELECT N_Musics from Playlists WHERE P_Name = :p_name", {'p_name': playlist})
+
+
+        result = self.cur.fetchall()
+
+
+        f_result = result[0]
+
+
+        num_musics = int(f_result[0]) + 1
+
+
+        self.cur.execute("UPDATE Playlists SET N_Musics = :musics_n WHERE P_Name = :p_name", {'musics_n': num_musics, 'p_name': playlist})
+
+
+
+        self.conn.commit()
+
+
+    
+    # Delete Music From Playlist
+    def del_from_playlist(self, playlist, music):
+        
+        self.cur.execute("DELETE FROM Musics WHERE P_Name = :name AND M_Name = :m_name", {'name': playlist, 'm_name': music})
+
+
+        self.cur.execute("SELECT N_Musics from Playlists WHERE P_Name = :p_name", {'p_name': playlist})
+
+
+        result = self.cur.fetchall()
+
+
+        f_result = result[0]
+
+
+        num_musics = int(f_result[0]) - 1
+
+
+        self.cur.execute("UPDATE Playlists SET N_Musics = :musics_n WHERE P_Name = :p_name", {'musics_n': num_musics, 'p_name': playlist})
+
+
+        self.conn.commit()
+
     

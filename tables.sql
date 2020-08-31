@@ -11,8 +11,8 @@ CREATE TABLE Musics
 (
     M_Name text not null,
     M_Path text not null,
-    P_Name text,
-    Position_in_P integer
+    P_Name text--,
+    --Position_in_P integer
 );
 
 drop table if exists directory;

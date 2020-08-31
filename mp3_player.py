@@ -36,6 +36,10 @@ showing_playlists = False
 songs_main_dir = ''
 
 
+# Current Playlist that is open
+current_playlist = ''
+
+
 # Define of Create Directory to import musics
 def dir_define():
 
@@ -62,7 +66,23 @@ def dir_define():
         check_dir_db_1 = check_dir_db[0]
 
         songs_main_dir = check_dir_db_1[0]
-        print(check_dir_db_1[0])
+
+
+
+# Button to delete selected song
+def clicked_del(value, playlist):
+
+
+    global delete_song_window
+
+
+    # Delete Song from database
+    playlists_record.del_from_playlist(playlist, value)
+
+
+    delete_song_window.destroy()
+
+    
 
 
 
@@ -239,7 +259,6 @@ def add_song():
 
 
     dir_define()
-    #print(songs_main_dir)
 
 
     song = filedialog.askopenfilename(initialdir=songs_main_dir, title="Choose A Song", filetypes=(("mp3 Files", "*.mp3"), ("wav Files", "*.wav")))
@@ -286,7 +305,7 @@ def add_song():
 
 
 
-# Add many songs to playlist
+# Add many songs to menu
 def add_many_songs():
 
     global showing_playlists
@@ -348,10 +367,178 @@ def add_many_songs():
 
 
 
+# Function to Add a song to the selected Playlist
+def add_song_playlist():
+    
+    global showing_playlists
+
+
+    global songs_main_dir
+
+
+    global current_playlist
+
+
+    dir_define()
+
+
+    check_playlist = playlists_record.playlist_exists(current_playlist)
+
+
+    if (check_playlist == 1) or (showing_playlists==True):
+
+        song = filedialog.askopenfilename(initialdir=songs_main_dir, title="Choose A Song", filetypes=(("mp3 Files", "*.mp3"), ("wav Files", "*.wav")))
+
+
+        # If it's displaying Playlists, it cleans the song box
+        if len(song) > 0:
+
+            # Getting the path of the .mp3 file
+            song_dir = song.split("/")
+
+            song_dir_len = len(song_dir)
+
+            song_dir.pop(song_dir_len-1)
+
+            song_file = song_dir[0]
+
+            song_dir.pop(0)
+
+            for elem in song_dir:
+                song_file = song_file + "/" + elem
+
+            song_file = song_file + "/"
+
+
+
+            # Strip out the directory info and .mp3 extension from the song name
+            song = song.replace(song_file, "")
+            song = song.replace(".mp3", "")
+
+
+
+            if (showing_playlists==False):
+
+                # Save Music in Database
+                playlists_record.add_to_playlist(current_playlist, song, song_file)
+
+                # Saving path of the .mp3 file in the path List
+                song_dir_list.append(song_file)
+
+                # Add song to list box
+                song_box.insert(END, song)
+
+            else:
+
+                # Get Selected Playlist Name
+                p_name = song_box.get(ACTIVE)
+
+
+                # Save Music in Database
+                playlists_record.add_to_playlist(p_name, song, song_file)
+
+
+            # Update Directory
+            playlists_record.change_dir(song_file)
+
+    else:
+        pass
+
+
+
+# Function to Add a song to the selected Playlist
+def add_many_songs_playlist():
+    
+    global showing_playlists
+
+
+    global songs_main_dir
+
+
+    global current_playlist
+
+
+    dir_define()
+
+
+    check_playlist = playlists_record.playlist_exists(current_playlist)
+
+
+    song_file = ''
+
+
+    if (check_playlist == 1) or (showing_playlists==True):
+
+        songs = filedialog.askopenfilenames(initialdir=songs_main_dir, title="Choose A Song", filetypes=(("mp3 Files", "*.mp3"), ("wav Files", "*.wav")))
+
+
+        # If it's displaying Playlists, it cleans the song box
+        if len(songs) > 0:
+        
+            # Strip out the directory info and .mp3 extension from the song name
+            for song in songs:
+                
+                # Getting the path of the .mp3 file
+                song_dir = song.split("/")
+
+                song_dir_len = len(song_dir)
+
+                song_dir.pop(song_dir_len-1)
+
+                song_file = song_dir[0]
+
+                song_dir.pop(0)
+
+                for elem in song_dir:
+                    song_file = song_file + "/" + elem
+
+                song_file = song_file + "/"
+
+
+                # Strip out the directory info and .mp3 extension from the song name
+                song = song.replace(song_file, "")
+                song = song.replace(".mp3", "")
+
+
+                if (showing_playlists==False):
+
+                    # Save Music in Database
+                    playlists_record.add_to_playlist(current_playlist, song, song_file)
+
+                    # Saving path of the .mp3 file in the path List
+                    song_dir_list.append(song_file)
+
+                    # Add song to list box
+                    song_box.insert(END, song)
+
+                else:
+
+                    # Get Selected Playlist Name
+                    p_name = song_box.get(ACTIVE)
+
+
+                    # Save Music in Database
+                    playlists_record.add_to_playlist(p_name, song, song_file)
+
+
+            # Update Directory
+            playlists_record.change_dir(song_file)
+    
+    else:
+        pass
+
+
+
 # Function to get back to Playlists Menu
 def get_back():
 
     song_box.delete(0, END)
+
+    current_playlist = ''
+
+    song_dir_list.clear()
+
+    stop()
     
     display_playlists()
 
@@ -360,11 +547,19 @@ def get_back():
 # Play Selected Song
 def play():
 
+    global current_playlist
+
     item = song_box.get(ACTIVE)
 
     is_playlist = playlists_record.playlist_exists(item)
 
     if is_playlist == 1:
+
+        global showing_playlists
+
+        showing_playlists = False
+
+        current_playlist = item
 
         song_box.delete(0, END)
 
@@ -541,6 +736,89 @@ def delete_all_songs():
 
 
 
+# Function to Delete a song from the selected Playlist
+def delete_song_playlist():
+    
+    global showing_playlists
+
+
+    global songs_main_dir
+
+
+    global current_playlist
+
+
+    dir_define()
+
+
+    check_playlist = playlists_record.playlist_exists(current_playlist)
+
+
+    if (check_playlist == 1) or (showing_playlists==True):
+
+        stop()
+
+
+        if (showing_playlists==False):
+
+            # Getting song index in order to choose the right path for it in the Path List
+            song_idx = song_box.index(ANCHOR)
+
+            song = song_box.get(ACTIVE)
+
+            song_box.delete(ANCHOR)
+
+
+            # Delete Song path from the Path List
+            song_dir_list.pop(song_idx)
+
+            # Stop Music If it's playing
+            pygame.mixer.music.stop()
+
+
+            # Delete Song from database
+            playlists_record.del_from_playlist(current_playlist, song)
+
+
+
+        else:
+
+            # Get Selected Playlist Name
+            p_name = song_box.get(ACTIVE)
+
+
+            global delete_song_window
+
+
+            # Open Window and let the user choose the music to delete
+            delete_song_window = Toplevel()
+            delete_song_window.title(f'Playlist: {p_name}')
+            delete_song_window.iconbitmap(r"images\Wwalczyszyn-Android-Style-Honeycomb-Music.ico")
+            
+            delete_song_label = Label(delete_song_window, text = "Choose Song to Delete:")
+            delete_song_label.pack(pady=10)
+
+            songs = playlists_record.get_musics_from_playlist(p_name)
+
+            global music
+            music = StringVar()
+            music.set("")
+
+            for elem in songs:
+                Radiobutton(delete_song_window, text=elem[0], variable=music, value=elem[0]).pack(anchor=W)
+        
+            song = music.get()
+
+            del_Button = Button(delete_song_window, text='Delete', command=lambda: clicked_del(music.get(), p_name))
+            del_Button.pack(pady = 10)
+
+
+
+    else:
+        pass
+
+
+
 # Create Global Pause Variable
 global paused
 paused = False
@@ -643,8 +921,15 @@ add_song_menu = Menu(my_menu)
 my_menu.add_cascade(label = "Add Songs", menu=add_song_menu)
 add_song_menu.add_command(label="Add One Song To Menu", command=add_song)
 
-# Add Many Songs to Playlist
+# Add Many Songs to Menu
 add_song_menu.add_command(label="Add Many Songs To Menu", command=add_many_songs)
+
+
+# Add a Song to the Playlist
+add_song_menu.add_command(label="Add One Song To Playlist", command=add_song_playlist)
+
+# Add Many Songs to the Playlist
+add_song_menu.add_command(label="Add Many Songs To Playlist", command=add_many_songs_playlist)
 
 
 # Create Delete Song Menu
@@ -652,7 +937,7 @@ remove_song_menu = Menu(my_menu)
 my_menu.add_cascade(label="Remove Songs", menu = remove_song_menu)
 remove_song_menu.add_command(label="Delete A Song From Menu", command = delete_song)
 remove_song_menu.add_command(label="Delete All Songs From Menu", command = delete_all_songs)
-
+remove_song_menu.add_command(label="Delete a Song From Playlist", command = delete_song_playlist)
 
 # Create Status Bar
 status_bar = Label(root, text="", bd=1, relief=GROOVE, anchor=E)
