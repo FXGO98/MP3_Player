@@ -191,4 +191,17 @@ class Database:
 
         self.conn.commit()
 
+
+
+    # Clear Playlist
+    def clear_playlist(self, playlist):
+        
+        self.cur.execute("DELETE FROM Musics WHERE P_Name = :name", {'name': playlist})
+
+
+        self.cur.execute("UPDATE Playlists SET N_Musics = 0 WHERE P_Name = :p_name", {'p_name': playlist})
+
+
+        self.conn.commit()
+
     

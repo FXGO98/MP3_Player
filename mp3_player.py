@@ -36,6 +36,11 @@ showing_playlists = False
 songs_main_dir = ''
 
 
+label_title = StringVar()
+
+label_title.set('')
+
+
 # Current Playlist that is open
 current_playlist = ''
 
@@ -43,11 +48,15 @@ current_playlist = ''
 # Define of Create Directory to import musics
 def dir_define():
 
+    global songs_main_dir
+
+
     check_dir_db = []
 
 
     # Check if there is any directory in the Database
     check_dir_db = playlists_record.DB_dir()
+
    
 
 
@@ -90,6 +99,8 @@ def clicked_del(value, playlist):
 def display_playlists():
 
     global showing_playlists
+
+    global label_title
     
     playlists_list = []
 
@@ -104,14 +115,23 @@ def display_playlists():
 
         return_btn.grid_forget()
 
-        info_label.grid(row=0, column=1, sticky=W)
+        
+        # Information Label
+        label_title.set("Playlists: ")
+
+
+
+
 
     elif showing_playlists:
         song_box.insert(END, new_playlist_name.get())
             
         return_btn.grid_forget()
 
-        info_label.grid(row=0, column=1, sticky=W)
+
+        # Information Label
+        label_title.set("Playlists: ")
+
 
     else:
         pass
@@ -258,6 +278,9 @@ def add_song():
     global songs_main_dir
 
 
+    global label_title
+
+
     dir_define()
 
 
@@ -268,6 +291,9 @@ def add_song():
     if len(song) > 0:
 
         if showing_playlists:
+
+            label_title.set('')
+
             song_box.delete(0, END)
             showing_playlists = False
 
@@ -314,6 +340,9 @@ def add_many_songs():
     global songs_main_dir
 
 
+    global label_title
+
+
     dir_define()
 
 
@@ -327,6 +356,9 @@ def add_many_songs():
     if len(songs) > 0:
 
         if showing_playlists:
+
+            label_title.set('')
+
             song_box.delete(0, END)
             showing_playlists = False
     
@@ -543,6 +575,10 @@ def get_back():
     display_playlists()
 
 
+    # Information Label
+    label_title.set('Playlist: ')
+
+
 
 # Play Selected Song
 def play():
@@ -569,7 +605,10 @@ def play():
 
         song_dir_list.clear()
 
-        info_label.grid_forget()
+
+        # Information Label
+        label_title.set(f'Playlist: {item}')
+
 
         for elem in musics_from_playlist:
             song_box.insert(END, elem[0])
@@ -819,6 +858,65 @@ def delete_song_playlist():
 
 
 
+# Function to Delete a song from the selected Playlist
+def delete_all_songs_playlist():
+    
+    global showing_playlists
+
+
+    global songs_main_dir
+
+
+    global current_playlist
+
+
+    dir_define()
+
+
+    check_playlist = playlists_record.playlist_exists(current_playlist)
+
+
+    if (check_playlist == 1) or (showing_playlists==True):
+
+        stop()
+
+
+        # Stop Music If it's playing
+        pygame.mixer.music.stop()
+
+
+        if (showing_playlists==False):
+
+            # Delete Songs paths from the Path List
+            for i in range(len(song_dir_list)):
+
+                # Delete Song path from the Path List
+                song_dir_list.pop(0)
+
+                song = song_box.get(0)
+                
+                song_box.delete(0)
+
+                playlists_record.del_from_playlist(current_playlist, song)
+
+
+
+        else:
+
+            # Get Selected Playlist Name
+            p_name = song_box.get(ACTIVE)
+
+
+            # Clear Playlist
+            playlists_record.clear_playlist(p_name)
+
+
+
+    else:
+        pass
+
+
+
 # Create Global Pause Variable
 global paused
 paused = False
@@ -938,6 +1036,9 @@ my_menu.add_cascade(label="Remove Songs", menu = remove_song_menu)
 remove_song_menu.add_command(label="Delete A Song From Menu", command = delete_song)
 remove_song_menu.add_command(label="Delete All Songs From Menu", command = delete_all_songs)
 remove_song_menu.add_command(label="Delete a Song From Playlist", command = delete_song_playlist)
+remove_song_menu.add_command(label="Delete All Songs From Playlist", command = delete_all_songs_playlist)
+
+
 
 # Create Status Bar
 status_bar = Label(root, text="", bd=1, relief=GROOVE, anchor=E)
@@ -959,7 +1060,8 @@ slider_label.pack()
 
 
 # Information Label
-info_label = Label(master_frame, text="Playlists:", bg="grey")
+info_label = Label(master_frame, textvariable=label_title, bg="grey")
+info_label.grid(row=0, column=1, sticky=W)
 
 
 
