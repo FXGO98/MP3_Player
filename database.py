@@ -155,7 +155,7 @@ class Database:
 
 
         f_result = result[0]
-
+        
 
         num_musics = int(f_result[0]) + 1
 

@@ -91,7 +91,45 @@ def clicked_del(value, playlist):
 
     delete_song_window.destroy()
 
-    
+
+
+# Add song to selected Playlist
+def clicked_add_song(playlist, song, path):
+
+    global add_song_window
+
+
+    # Add Song to playlist on database
+    playlists_record.add_to_playlist(playlist, song, path)
+
+
+    add_song_window.destroy()
+
+
+
+# Add all songs to selected Playlist
+def clicked_add_songs(playlist):
+
+    global add_songs_window
+
+    global song_dir_list
+
+
+    list_size = song_box.size()
+
+
+    for i in range(list_size):
+
+        song = song_box.get(i)
+
+        path = song_dir_list[i]
+
+
+        # Add Song to playlist on database
+        playlists_record.add_to_playlist(playlist, song, path)
+
+
+    add_songs_window.destroy()
 
 
 
@@ -561,8 +599,103 @@ def add_many_songs_playlist():
 
 
 
+# Add selected song on Menu to Playlist
+def one_from_menu():
+
+    global showing_playlists
+
+    global current_playlist
+
+    global song_dir_list
+
+
+    if (showing_playlists==False) and (current_playlist==''):
+
+        # Get Selected Playlist Name
+            song = song_box.get(ACTIVE)
+
+
+            index = song_box.index(ACTIVE)
+
+
+            global add_song_window
+
+
+            # Open Window and let the user choose the music to delete
+            add_song_window = Toplevel()
+            add_song_window.title(f'Playlists:')
+            add_song_window.iconbitmap(r"images\Wwalczyszyn-Android-Style-Honeycomb-Music.ico")
+            
+            add_song_label = Label(add_song_window, text = "Choose a Playlist:")
+            add_song_label.pack(pady=10)
+
+
+            global chosen_playlist
+            chosen_playlist = StringVar()
+            chosen_playlist.set(" ")
+
+            playlists = playlists_record.get_playlists()
+
+            for elem in playlists:
+                Radiobutton(add_song_window, text=elem[0], variable=chosen_playlist, value=elem[0]).pack(anchor=W)
+
+
+            add_one_Button = Button(add_song_window, text='Add Song', command=lambda: clicked_add_song(chosen_playlist.get(), song, song_dir_list[index]))
+            add_one_Button.pack(pady = 10)
+        
+
+    else:
+        pass
+
+
+
+# Add all songs from menu to Playlist
+def all_from_menu():
+    
+    global showing_playlists
+
+    global current_playlist
+
+    global song_dir_list
+
+
+    if (showing_playlists==False) and (current_playlist==''):
+
+            global add_songs_window
+
+
+            # Open Window and let the user choose the music to delete
+            add_songs_window = Toplevel()
+            add_songs_window.title(f'Playlists:')
+            add_songs_window.iconbitmap(r"images\Wwalczyszyn-Android-Style-Honeycomb-Music.ico")
+            
+            add_songs_label = Label(add_songs_window, text = "Choose a Playlist:")
+            add_songs_label.pack(pady=10)
+
+
+            global the_chosen_playlist
+            the_chosen_playlist = StringVar()
+            the_chosen_playlist.set(" ")
+
+            playlists = playlists_record.get_playlists()
+
+            for elem in playlists:
+                Radiobutton(add_songs_window, text=elem[0], variable=the_chosen_playlist, value=elem[0]).pack(anchor=W)
+
+
+            add_all_Button = Button(add_songs_window, text='Add Songs', command=lambda: clicked_add_songs(the_chosen_playlist.get()))
+            add_all_Button.pack(pady = 10)
+        
+
+    else:
+        pass
+
+
+
 # Function to get back to Playlists Menu
 def get_back():
+
+    global current_playlist
 
     song_box.delete(0, END)
 
@@ -576,7 +709,7 @@ def get_back():
 
 
     # Information Label
-    label_title.set('Playlist: ')
+    label_title.set('Playlists: ')
 
 
 
@@ -841,7 +974,7 @@ def delete_song_playlist():
 
             global music
             music = StringVar()
-            music.set("")
+            music.set(" ")
 
             for elem in songs:
                 Radiobutton(delete_song_window, text=elem[0], variable=music, value=elem[0]).pack(anchor=W)
@@ -1028,6 +1161,12 @@ add_song_menu.add_command(label="Add One Song To Playlist", command=add_song_pla
 
 # Add Many Songs to the Playlist
 add_song_menu.add_command(label="Add Many Songs To Playlist", command=add_many_songs_playlist)
+
+# Add One Song from Menu to Playlist
+add_song_menu.add_command(label="Add Selected Song To Playlist", command=one_from_menu)
+
+# Add One Song from Menu to Playlist
+add_song_menu.add_command(label="Add All Songs To Playlist", command=all_from_menu)
 
 
 # Create Delete Song Menu
