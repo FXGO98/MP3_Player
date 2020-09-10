@@ -1119,11 +1119,11 @@ volume_frame.grid(row=1, column=2, padx=(20,0))
 
 # Create Player Control Buttons
 
-back_btn = Button(ctrl_frame, image=back_btn_img, borderwidth = 0, command=back)
-forward_btn = Button(ctrl_frame, image=forward_btn_img, borderwidth = 0, command=forward)
-play_btn = Button(ctrl_frame, image=play_btn_img, borderwidth = 0, command=play)
-pause_btn = Button(ctrl_frame, image=pause_btn_img, borderwidth = 0, command=lambda:pause(paused))
-stop_btn = Button(ctrl_frame, image=stop_btn_img, borderwidth = 0, command=stop)
+back_btn = Button(ctrl_frame, image=back_btn_img, borderwidth = 0, bg = "grey", activebackground = "grey", command=back)
+forward_btn = Button(ctrl_frame, image=forward_btn_img, borderwidth = 0, bg = "grey", activebackground = "grey", command=forward)
+play_btn = Button(ctrl_frame, image=play_btn_img, borderwidth = 0, bg = "grey", activebackground = "grey", command=play)
+pause_btn = Button(ctrl_frame, image=pause_btn_img, borderwidth = 0, bg = "grey", activebackground = "grey", command=lambda:pause(paused))
+stop_btn = Button(ctrl_frame, image=stop_btn_img, borderwidth = 0, bg = "grey", activebackground = "grey", command=stop)
 
 
 back_btn.grid(row=0, column=0, pady=(20,0))
@@ -1201,7 +1201,7 @@ info_label.grid(row=0, column=1, sticky=W)
 
 
 # Create a return button
-return_btn = Button(master_frame, image=return_btn_img, borderwidth = 0, command=get_back)
+return_btn = Button(master_frame, image=return_btn_img, borderwidth = 0, activebackground = "grey", command=get_back)
 
 
 
