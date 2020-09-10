@@ -1,6 +1,5 @@
 from tkinter import *
 import pygame
-import os
 from tkinter import filedialog
 from tkinter import messagebox
 import time
@@ -11,7 +10,7 @@ import database
 
 root = Tk()
 root.title("MP3 Player")
-root.iconbitmap(r"images\Wwalczyszyn-Android-Style-Honeycomb-Music.ico")
+root.iconbitmap(r"C:\Users\franc\Desktop\MP3_Player\images\Wwalczyszyn-Android-Style-Honeycomb-Music.ico")
 root.geometry("500x400")
 root.config(bg="grey")
 
@@ -61,13 +60,7 @@ def dir_define():
 
 
     if len(check_dir_db) == 0:
-
-        check_dir = os.path.isdir("./audio")
-
-        if check_dir == False:
-            os.mkdir("/audio")
-
-        songs_main_dir = 'audio/'
+        songs_main_dir = ''
 
 
     elif len(check_dir_db) == 1:
@@ -277,7 +270,7 @@ def new_playlist():
     global new_playlist_window
     new_playlist_window = Toplevel()
     new_playlist_window.title('New Playlist')
-    new_playlist_window.iconbitmap(r"images\Wwalczyszyn-Android-Style-Honeycomb-Music.ico")
+    new_playlist_window.iconbitmap(r"C:\Users\franc\Desktop\MP3_Player\images\Wwalczyszyn-Android-Style-Honeycomb-Music.ico")
     
     new_playlist_label = Label(new_playlist_window, text = "New Playlist Name:")
     new_playlist_label.pack()
@@ -624,7 +617,7 @@ def one_from_menu():
             # Open Window and let the user choose the music to delete
             add_song_window = Toplevel()
             add_song_window.title(f'Playlists:')
-            add_song_window.iconbitmap(r"images\Wwalczyszyn-Android-Style-Honeycomb-Music.ico")
+            add_song_window.iconbitmap(r"C:\Users\franc\Desktop\MP3_Player\images\Wwalczyszyn-Android-Style-Honeycomb-Music.ico")
             
             add_song_label = Label(add_song_window, text = "Choose a Playlist:")
             add_song_label.pack(pady=10)
@@ -667,7 +660,7 @@ def all_from_menu():
             # Open Window and let the user choose the music to delete
             add_songs_window = Toplevel()
             add_songs_window.title(f'Playlists:')
-            add_songs_window.iconbitmap(r"images\Wwalczyszyn-Android-Style-Honeycomb-Music.ico")
+            add_songs_window.iconbitmap(r"C:\Users\franc\Desktop\MP3_Player\images\Wwalczyszyn-Android-Style-Honeycomb-Music.ico")
             
             add_songs_label = Label(add_songs_window, text = "Choose a Playlist:")
             add_songs_label.pack(pady=10)
@@ -755,6 +748,9 @@ def play():
         # Set Stopped Variable to False so song can play
         global stopped
         stopped = False
+
+        global paused
+        paused = False
         
         # Reset Slider and Status Bar
         status_bar.config(text='')
@@ -965,7 +961,7 @@ def delete_song_playlist():
             # Open Window and let the user choose the music to delete
             delete_song_window = Toplevel()
             delete_song_window.title(f'Playlist: {p_name}')
-            delete_song_window.iconbitmap(r"images\Wwalczyszyn-Android-Style-Honeycomb-Music.ico")
+            delete_song_window.iconbitmap(r"C:\Users\franc\Desktop\MP3_Player\images\Wwalczyszyn-Android-Style-Honeycomb-Music.ico")
             
             delete_song_label = Label(delete_song_window, text = "Choose Song to Delete:")
             delete_song_label.pack(pady=10)
@@ -1103,12 +1099,12 @@ song_box.grid(row=1, column=0, columnspan = 2)
 
 
 # Create Player Control Button Images
-back_btn_img = PhotoImage(file='images/back.png')
-forward_btn_img = PhotoImage(file='images/forward.png')
-play_btn_img = PhotoImage(file='images/play.png')
-pause_btn_img = PhotoImage(file='images/pause.png')
-stop_btn_img = PhotoImage(file='images/stop.png')
-return_btn_img = PhotoImage(file='images/back_arrow.png')
+back_btn_img = PhotoImage(file='C:/Users/franc/Desktop/MP3_Player/images/back.png')
+forward_btn_img = PhotoImage(file='C:/Users/franc/Desktop/MP3_Player/images/forward.png')
+play_btn_img = PhotoImage(file='C:/Users/franc/Desktop/MP3_Player/images/play.png')
+pause_btn_img = PhotoImage(file='C:/Users/franc/Desktop/MP3_Player/images/pause.png')
+stop_btn_img = PhotoImage(file='C:/Users/franc/Desktop/MP3_Player/images/stop.png')
+return_btn_img = PhotoImage(file='C:/Users/franc/Desktop/MP3_Player/images/back_arrow.png')
 
 
 # Create Player Control Frame
@@ -1142,13 +1138,13 @@ my_menu = Menu(root)
 root.config(menu=my_menu)
 
 # Create Playlist Menu
-playlist_menu = Menu(my_menu)
+playlist_menu = Menu(my_menu, tearoff=0)
 my_menu.add_cascade(label = "Playlist", menu=playlist_menu)
 playlist_menu.add_command(label="New Playlist", command=new_playlist)
 playlist_menu.add_command(label="Delete Playlist", command=delete_this_playlist)
 
 # Add Song Menu
-add_song_menu = Menu(my_menu)
+add_song_menu = Menu(my_menu, tearoff=0)
 my_menu.add_cascade(label = "Add Songs", menu=add_song_menu)
 add_song_menu.add_command(label="Add One Song To Menu", command=add_song)
 
@@ -1170,7 +1166,7 @@ add_song_menu.add_command(label="Add All Songs To Playlist", command=all_from_me
 
 
 # Create Delete Song Menu
-remove_song_menu = Menu(my_menu)
+remove_song_menu = Menu(my_menu, tearoff=0)
 my_menu.add_cascade(label="Remove Songs", menu = remove_song_menu)
 remove_song_menu.add_command(label="Delete A Song From Menu", command = delete_song)
 remove_song_menu.add_command(label="Delete All Songs From Menu", command = delete_all_songs)

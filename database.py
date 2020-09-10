@@ -22,7 +22,7 @@ class Database:
         self.cur = self.conn.cursor()
 
         if self.reset:
-            self.cur.executescript(open('tables.sql', 'r').read())
+            self.cur.executescript(open('C:/Users/franc/Desktop/MP3_Player/tables.sql', 'r').read())
             self.conn.commit()
 
 
